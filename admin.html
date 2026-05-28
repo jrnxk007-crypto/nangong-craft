@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>管理后台 — 南环工艺</title>
+<style>
+:root { --bg:#f9f6f0; --card:#fff; --text:#2c2416; --text-light:#8c8070; --accent:#b84636; --accent-gold:#c9a96e; --border:#e8e0d5; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); line-height:1.6; padding-bottom:40px; }
+
+.header { background:linear-gradient(135deg,#2c2416,#3d3226); color:#fff; text-align:center; padding:28px 16px 20px; }
+.header::after { content:""; display:block; height:3px; background:linear-gradient(90deg,var(--accent-gold),var(--accent),var(--accent-gold)); margin-top:16px; }
+.header h1 { font-size:18px; letter-spacing:2px; }
+.header .sub { font-size:12px; color:rgba(255,255,255,.5); margin-top:4px; }
+.header .status { font-size:11px; margin-top:6px; }
+
+.tabs { display:flex; border-bottom:1px solid var(--border); background:#fff; position:sticky; top:0; z-index:10; }
+.tabs span { flex:1; text-align:center; padding:14px 8px; font-size:13px; cursor:pointer; color:var(--text-light); border-bottom:2px solid transparent; }
+.tabs span.on { color:var(--accent); border-bottom-color:var(--accent); font-weight:500; }
+
+.body { padding:12px; }
+.section { margin-bottom:20px; }
+
+.card { background:var(--card); border-radius:10px; padding:14px; margin-bottom:10px; box-shadow:0 1px 8px rgba(0,0,0,.04); }
+.card .row { display:flex; align-items:center; justify-content:space-between; }
+.card .info { flex:1; min-width:0; }
+.card .info strong { display:block; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card .info span { font-size:11px; color:var(--text-light); }
+.card .btns { flex-shrink:0; margin-left:10px; }
+.card .btns button { padding:5px 12px; border-radius:12px; border:none; font-size:12px; cursor:pointer; margin-left:4px; background:#e8e0d5; color:var(--text); }
+.card .btns button.danger { background:#fde8e8; color:var(--accent); }
+
+.form { background:var(--card); border-radius:10px; padding:14px; box-shadow:0 1px 8px rgba(0,0,0,.04); }
+.form label { display:block; font-size:12px; color:var(--text-light); margin:8px 0 4px; }
+.form label:first-child { margin-top:0; }
+.form input, .form select, .form textarea { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; font-family:inherit; background:#fff; }
+.form textarea { resize:vertical; min-height:60px; }
+.form .btn-row { display:flex; gap:8px; margin-top:12px; }
+.form .btn-row button { flex:1; padding:10px; border-radius:20px; border:none; font-size:14px; cursor:pointer; }
+.form .btn-save { background:var(--accent); color:#fff; }
+.form .btn-cancel { background:#e8e0d5; color:var(--text); }
+.form .btn-add { background:var(--accent-gold); color:#fff; padding:10px 24px; border-radius:20px; border:none; font-size:14px; cursor:pointer; margin-top:8px; width:100%; }
+
+.toast { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,.8); color:#fff; padding:10px 24px; border-radius:20px; font-size:14px; z-index:2000; pointer-events:none; animation:toastIn .3s ease; }
+@keyframes toastIn { from{opacity:0;transform:translate(-50%,-50%) scale(.9);} to{opacity:1;transform:translate(-50%,-50%) scale(1);} }
+
+.setup-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:3000; display:flex; align-items:center; justify-content:center; }
+.setup-box { background:#fff; border-radius:12px; padding:24px; width:90%; max-width:360px; }
+.setup-box h3 { font-size:16px; margin-bottom:8px; }
+.setup-box p { font-size:12px; color:var(--text-light); margin-bottom:12px; }
+.setup-box input { width:100%; padding:10px; border:1px solid var(--border); border-radius:6px; font-size:13px; margin-bottom:12px; }
+.setup-box button { width:100%; padding:10px; border-radius:20px; border:none; background:var(--accent); color:#fff; font-size:14px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>管理后台</h1>
+  <div class="sub">修改后的内容会同步到公网展示页</div>
+  <div class="status" id="saveStatus"></div>
+</div>
+
+<div class="tabs">
+  <span id="tCat" class="on" onclick="sw('cat')">分类管理</span>
+  <span id="tProd" onclick="sw('prod')">产品管理</span>
+  <span id="tContact" onclick="sw('contact')">联系信息</span>
+</div>
+<div class="body" id="body"></div>
+
+<div id="setupOverlay" class="setup-overlay" style="display:none">
+  <div class="setup-box">
+    <h3>首次设置</h3>
+    <p>需要 GitHub Token 才能保存修改。<br>打开 <b>github.com/settings/tokens</b> 生成一个 Classic token，勾选 <b>repo</b> 权限。</p>
+    <input id="setupToken" placeholder="粘贴 Token（ghp_开头）">
+    <button onclick="saveToken()">保存并开始使用</button>
+  </div>
+</div>
+
+<script>
+var TOKEN = localStorage.getItem("gh_token") || "";
+var REPO = "jrnxk007-crypto";
+var REPONAME = "nangong-craft";
+var tab = "cat";
+
+if (!TOKEN) document.getElementById("setupOverlay").style.display = "flex";
+
+function saveToken() {
+  var t = document.getElementById("setupToken").value.trim();
+  if (!t.startsWith("ghp_")) { alert("Token 格式不正确，应以 ghp_ 开头"); return; }
+  TOKEN = t;
+  localStorage.setItem("gh_token", t);
+  document.getElementById("setupOverlay").style.display = "none";
+  sw("cat");
+}
+
+function sw(t) {
+  tab = t;
+  document.getElementById("tCat").className = t==="cat"?"on":"";
+  document.getElementById("tProd").className = t==="prod"?"on":"";
+  document.getElementById("tContact").className = t==="contact"?"on":"";
+  if (t==="cat") rCats(); else if (t==="prod") rProds(); else rContact();
+}
+
+// ── API ──
+async function getFile(path) {
+  var r = await fetch("https://api.github.com/repos/"+REPO+"/"+REPONAME+"/contents/"+path, {
+    headers: { Authorization: "token "+TOKEN }
+  });
+  if (!r.ok) throw new Error("getFile failed: "+r.status);
+  return r.json();
+}
+
+async function saveFile(path, content, msg) {
+  var sha = "";
+  try { var f = await getFile(path); sha = f.sha; } catch(e) {}
+  var body = { message: msg, content: btoa(unescape(encodeURIComponent(content))), branch:"master" };
+  if (sha) body.sha = sha;
+  var r = await fetch("https://api.github.com/repos/"+REPO+"/"+REPONAME+"/contents/"+path, {
+    method: "PUT",
+    headers: { Authorization: "token "+TOKEN, "Content-Type":"application/json" },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error("saveFile failed: "+r.status);
+  return r.json();
+}
+
+// ── Data ──
+async function loadData() {
+  try {
+    var f = await getFile("products.js");
+    var raw = decodeURIComponent(escape(atob(f.content)));
+    var cats = [], prods = [], contact = {};
+    // Parse categories
+    var cm = raw.match(/const CATEGORIES = (\[[\s\S]*?\]);/);
+    if (cm) cats = eval(cm[1]);
+    // Parse products
+    var pm = raw.match(/const PRODUCTS = (\[[\s\S]*?\]);/);
+    if (pm) prods = eval(pm[1]);
+    // Parse contact
+    var ccm = raw.match(/const CONTACT = (\{[\s\S]*?\});/);
+    if (ccm) contact = eval(ccm[1]);
+    return { cats:cats, prods:prods, contact:contact, raw:raw };
+  } catch(e) { toast("加载失败："+e.message); return null; }
+}
+
+function buildProductsJS(data) {
+  return "// ========================================\n// 产品数据 — 加新产品只改这个文件\n// 照着现有格式复制粘贴即可\n// ========================================\n\n"
+    +"const CATEGORIES = "+JSON.stringify(data.cats, null, 2)+";\n\n"
+    +"const PRODUCTS = "+JSON.stringify(data.prods, null, 2)+";\n\n"
+    +"// ========================================\n// 联系信息\n// ========================================\n"
+    +"const CONTACT = "+JSON.stringify(data.contact, null, 2)+";\n";
+}
+
+// ── Category UI ──
+async function rCats() {
+  var data = await loadData();
+  if (!data) return;
+  var h = "<div class='section'>";
+  data.cats.forEach(function(c,i){
+    h += "<div class='card'><div class='row'><div class='info'><strong>"+c.name+"</strong><span>ID: "+c.id+"</span></div>"
+      +"<div class='btns'><button onclick='editCat("+i+")'>编辑</button>"
+      +"<button class='danger' onclick='delCat("+i+")'>删除</button></div></div></div>";
+  });
+  h += "</div>";
+
+  var ed = JSON.parse(sessionStorage.getItem("editCat")||"null");
+  var isEdit = ed !== null;
+  h += "<div class='form'><h3>"+(isEdit?"编辑分类":"添加新分类")+"</h3>"
+    +"<label>分类名称</label><input id='fCatName' value='"+(isEdit?ed.name:"")+"'>"
+    +"<label>分类 ID</label><input id='fCatId' value='"+(isEdit?ed.id:"")+"' placeholder='英文，如 liushui'"+(isEdit?" disabled":"")+">"
+    +"<div class='btn-row'>"
+      +(isEdit?"<button class='btn-cancel' onclick='cancelEditCat()'>取消</button>":"")
+      +"<button class='btn-save' id='btnSaveCat'>"+(isEdit?"保存修改":"添加分类")+"</button>"
+    +"</div></div>";
+  document.getElementById("body").innerHTML = h;
+  document.getElementById("btnSaveCat").onclick = function(){ saveCat(isEdit?ed.id:""); };
+}
+async function saveCat(oldId) {
+  var name = document.getElementById("fCatName").value.trim();
+  var id = oldId || document.getElementById("fCatId").value.trim();
+  if (!name||!id) { toast("请填写完整"); return; }
+  var data = await loadData(); if (!data) return;
+  if (oldId) {
+    for (var i=0;i<data.cats.length;i++) { if (data.cats[i].id===oldId) { data.cats[i].name=name; break; } }
+    data.prods.forEach(function(p){ if(p.category===oldId) p.category=id; });
+    for (var j=0;j<data.cats.length;j++) { if (data.cats[j].id===oldId) { data.cats[j].id=id; break; } }
+    sessionStorage.removeItem("editCat");
+  } else {
+    if (data.cats.some(function(c){return c.id===id;})) { toast("该ID已存在"); return; }
+    data.cats.push({id:id, name:name});
+  }
+  try {
+    await saveFile("products.js", buildProductsJS(data), "更新分类: "+name);
+    toast("已保存，1分钟后公网生效");
+    rCats();
+  } catch(e) { toast("保存失败: "+e.message); }
+}
+function editCat(i) { loadData().then(function(d){ sessionStorage.setItem("editCat", JSON.stringify(d.cats[i])); rCats(); }); }
+function cancelEditCat() { sessionStorage.removeItem("editCat"); rCats(); }
+async function delCat(i) {
+  if (!confirm("确定删除？")) return;
+  var data = await loadData(); if (!data) return;
+  data.cats.splice(i,1);
+  try { await saveFile("products.js", buildProductsJS(data), "删除分类"); toast("已删除"); rCats(); }
+  catch(e) { toast("删除失败: "+e.message); }
+}
+
+// ── Product UI ──
+async function rProds() {
+  var data = await loadData(); if (!data) return;
+  var cn = {}; data.cats.forEach(function(c){cn[c.id]=c.name;});
+  var h = "<div class='section'>";
+  data.prods.forEach(function(p,i){
+    h += "<div class='card'><div class='row'><div class='info'><strong>"+p.name+"</strong>"
+      +"<span>"+p.id+" · "+(cn[p.category]||p.category)+" · "+p.images.length+"张图</span></div>"
+      +"<div class='btns'><button onclick='editProd("+i+")'>编辑</button>"
+      +"<button class='danger' onclick='delProd("+i+")'>删除</button></div></div></div>";
+  });
+  h += "</div>";
+
+  var ed = JSON.parse(sessionStorage.getItem("editProd")||"null");
+  var isEdit = ed !== null;
+  var p = isEdit ? ed : {id:"",category:data.cats[0]?data.cats[0].id:"",name:"",cover:"",images:[],video:"",specs:[],desc:""};
+  h += "<div class='form'><h3>"+(isEdit?"编辑产品":"添加新产品")+"</h3>"
+    +"<label>产品名称 *</label><input id='fPName' value='"+esc(p.name)+"'>"
+    +"<label>货号/ID *</label><input id='fPId' value='"+esc(p.id)+"' placeholder='如 99537'"+(isEdit?" disabled":"")+">"
+    +"<label>所属分类</label><select id='fPCat'>"+data.cats.map(function(c){return "<option value='"+c.id+"'"+(p.category===c.id?" selected":"")+">"+c.name+"</option>";}).join("")+"</select>"
+    +"<label>封面图</label><input id='fPCover' value='"+esc(p.cover)+"' placeholder='images/99535/image-1.png'>"
+    +"<label>所有图片（一行一个）</label><textarea id='fPImgs'>"+(isEdit?p.images.join("\n"):"")+"</textarea>"
+    +"<label>视频链接</label><input id='fPVideo' value='"+esc(p.video||"")+"' placeholder='https://xxx.com/v.mp4'>"
+    +"<label>规格标签（一行一个）</label><textarea id='fPSpecs'>"+(isEdit?p.specs.join("\n"):"")+"</textarea>"
+    +"<label>描述</label><input id='fPDesc' value='"+esc(p.desc||"")+"'>"
+    +"<div class='btn-row'>"
+      +(isEdit?"<button class='btn-cancel' onclick='cancelEditProd()'>取消</button>":"")
+      +"<button class='btn-save' id='btnSaveProd'>"+(isEdit?"保存修改":"添加产品")+"</button>"
+    +"</div></div>";
+  document.getElementById("body").innerHTML = h;
+  document.getElementById("btnSaveProd").onclick = function(){ saveProd(isEdit?ed.id:""); };
+}
+function esc(s) { return (s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function lines(id) { return document.getElementById(id).value.split("\n").map(function(s){return s.trim();}).filter(function(s){return s;}); }
+async function saveProd(oldId) {
+  var name = document.getElementById("fPName").value.trim();
+  var id = oldId || document.getElementById("fPId").value.trim();
+  if (!name||!id) { toast("请填写产品名称和ID"); return; }
+  var data = await loadData(); if (!data) return;
+  var obj = {
+    id:id, category:document.getElementById("fPCat").value, name:name,
+    cover:document.getElementById("fPCover").value.trim(),
+    images:lines("fPImgs"),
+    video:document.getElementById("fPVideo").value.trim(),
+    specs:lines("fPSpecs"),
+    desc:document.getElementById("fPDesc").value.trim()
+  };
+  if (!obj.cover&&obj.images.length) obj.cover=obj.images[0];
+  if (!obj.specs.length) obj.specs=[""];
+  if (oldId) {
+    for (var i=0;i<data.prods.length;i++) { if (data.prods[i].id===oldId) { data.prods[i]=obj; break; } }
+    sessionStorage.removeItem("editProd");
+  } else {
+    if (data.prods.some(function(p){return p.id===id;})) { toast("该ID已存在"); return; }
+    data.prods.push(obj);
+  }
+  try {
+    await saveFile("products.js", buildProductsJS(data), "更新产品: "+name);
+    toast("已保存，1分钟后公网生效");
+    rProds();
+  } catch(e) { toast("保存失败: "+e.message); }
+}
+function editProd(i) { loadData().then(function(d){ sessionStorage.setItem("editProd", JSON.stringify(d.prods[i])); rProds(); }); }
+function cancelEditProd() { sessionStorage.removeItem("editProd"); rProds(); }
+async function delProd(i) {
+  if (!confirm("确定删除？")) return;
+  var data = await loadData(); if (!data) return;
+  data.prods.splice(i,1);
+  try { await saveFile("products.js", buildProductsJS(data), "删除产品"); toast("已删除"); rProds(); }
+  catch(e) { toast("删除失败: "+e.message); }
+}
+
+// ── Contact UI ──
+async function rContact() {
+  var data = await loadData(); if (!data) return;
+  var c = data.contact;
+  var h = "<div class='form'><h3>联系信息</h3>"
+    +"<label>工厂名称</label><input id='fCoFact' value='"+esc(c.factory)+"'>"
+    +"<label>电话</label><input id='fCoPhone' value='"+esc(c.phone)+"'>"
+    +"<label>微信号</label><input id='fCoWx' value='"+esc(c.wechat)+"'>"
+    +"<label>地址</label><input id='fCoAddr' value='"+esc(c.address)+"'>"
+    +"<div class='btn-row'><button class='btn-save' id='btnSaveCo'>保存</button></div></div>";
+  document.getElementById("body").innerHTML = h;
+  document.getElementById("btnSaveCo").onclick = saveContact;
+}
+async function saveContact() {
+  var data = await loadData(); if (!data) return;
+  data.contact = {
+    factory:document.getElementById("fCoFact").value.trim(),
+    phone:document.getElementById("fCoPhone").value.trim(),
+    wechat:document.getElementById("fCoWx").value.trim(),
+    address:document.getElementById("fCoAddr").value.trim()
+  };
+  try {
+    await saveFile("products.js", buildProductsJS(data), "更新联系信息");
+    toast("已保存，1分钟后公网生效");
+  } catch(e) { toast("保存失败: "+e.message); }
+}
+
+function toast(msg) {
+  var el=document.createElement("div"); el.className="toast"; el.textContent=msg;
+  document.body.appendChild(el); setTimeout(function(){el.remove();},2500);
+}
+
+sw("cat");
+</script>
+</body>
+</html>
