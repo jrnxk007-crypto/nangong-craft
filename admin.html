@@ -128,16 +128,15 @@ async function saveFile(path, content, msg) {
 // ── Data ──
 async function loadData() {
   try {
-    var f = await getFile("products.js");
-    var raw = decodeURIComponent(escape(atob(f.content)));
+    // Read from same origin (no API needed, no VPN)
+    var resp = await fetch("products.js?v="+Date.now());
+    if (!resp.ok) throw new Error("加载products.js失败: "+resp.status);
+    var raw = await resp.text();
     var cats = [], prods = [], contact = {};
-    // Parse categories
     var cm = raw.match(/const CATEGORIES = (\[[\s\S]*?\]);/);
     if (cm) cats = eval(cm[1]);
-    // Parse products
     var pm = raw.match(/const PRODUCTS = (\[[\s\S]*?\]);/);
     if (pm) prods = eval(pm[1]);
-    // Parse contact
     var ccm = raw.match(/const CONTACT = (\{[\s\S]*?\});/);
     if (ccm) contact = eval(ccm[1]);
     return { cats:cats, prods:prods, contact:contact, raw:raw };
