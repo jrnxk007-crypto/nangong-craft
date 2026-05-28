@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta property="og:title" content="南环工艺 — 禅意流水摆件">
+<meta property="og:description" content="匠心制作 · 禅意流水摆件">
+<meta property="og:image" content="images/99535/image-1.png">
+<title>南环工艺 — 流水摆件</title>
+<style>
+:root {
+  --bg: #f9f6f0; --card: #fff; --text: #2c2416; --text-light: #8c8070;
+  --accent: #b84636; --accent-gold: #c9a96e; --border: #e8e0d5;
+  --shadow: 0 2px 16px rgba(0,0,0,.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background: var(--bg); color: var(--text); line-height:1.6;
+  -webkit-font-smoothing:antialiased; padding-bottom: 100px;
+}
+/* Header */
+.header {
+  background: linear-gradient(135deg, #2c2416 0%, #3d3226 100%);
+  color: #fff; text-align: center; padding: 36px 16px 28px; position: relative; overflow: hidden;
+}
+.header::after {
+  content:""; position:absolute; bottom:0; left:0; right:0; height:3px;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent), var(--accent-gold));
+}
+.header h1 { font-size: 24px; font-weight: 600; letter-spacing: 3px; margin-bottom: 6px; }
+.header .sub { font-size: 13px; color: rgba(255,255,255,.55); letter-spacing: 2px; }
+.header .admin-hint { font-size: 10px; color: rgba(255,255,255,.2); margin-top: 6px; }
+
+/* Tabs */
+.tabs-wrap {
+  overflow-x: auto; white-space: nowrap; padding: 16px;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none; display: flex; justify-content: center;
+}
+.tabs-wrap::-webkit-scrollbar { display:none; }
+.tab {
+  display: inline-block; padding: 9px 22px; margin: 0 5px; border-radius: 22px;
+  font-size: 14px; background: var(--card); color: var(--text-light);
+  border: 1px solid var(--border); cursor: pointer; transition: all .2s; user-select: none;
+}
+.tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* Grid */
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px 24px; }
+.card {
+  background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);
+  cursor: pointer; transition: transform .15s; -webkit-tap-highlight-color: transparent;
+}
+.card:active { transform: scale(.97); }
+.card-img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #f0ece5; }
+.card-body { padding: 10px 12px 12px; }
+.card-body .name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.card-body .specs { font-size: 12px; color: var(--text-light); }
+
+/* Lightbox */
+.lightbox {
+  position: fixed; inset: 0; background: rgba(0,0,0,.96); z-index: 1000;
+  display: flex; align-items: center; justify-content: center; flex-direction: column; touch-action: pan-y;
+}
+.lightbox img {
+  max-width: 96vw; max-height: 72vh; object-fit: contain; border-radius: 4px;
+  user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none;
+}
+.lightbox .counter { color: rgba(255,255,255,.5); font-size: 13px; margin-top: 14px; }
+.lightbox .close {
+  position: absolute; top: max(16px, env(safe-area-inset-top)); right: 16px;
+  width: 36px; height: 36px; background: rgba(255,255,255,.12); border: none;
+  border-radius: 50%; color: #fff; font-size: 20px; cursor: pointer; z-index: 10;
+  line-height: 36px; text-align: center;
+}
+.lightbox .nav-btn {
+  position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px;
+  border-radius: 50%; background: rgba(255,255,255,.1); border: none; color: #fff;
+  font-size: 22px; cursor: pointer; z-index: 10; line-height: 40px; text-align: center;
+}
+.lightbox .nav-prev { left: 8px; } .lightbox .nav-next { right: 8px; }
+
+/* Video */
+.video-section {
+  margin: 0 16px 24px; background: var(--card); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden;
+}
+.video-section .label { font-size: 15px; font-weight: 500; padding: 14px 16px 0; color: var(--text); }
+.video-section video, .video-section .placeholder { margin: 12px 16px 16px; width: calc(100% - 32px); }
+.video-section video { display: block; border-radius: 8px; background: #000; }
+.video-section .placeholder {
+  aspect-ratio: 16/9; background: #f5f1ea; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+  color: var(--text-light); font-size: 14px; border: 1px dashed var(--border);
+}
+.video-section .placeholder .tip { font-size: 12px; color: #b0a590; margin-top: 4px; }
+
+/* Contact */
+.contact-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--border);
+  display: flex; align-items: center; padding: 10px 16px; gap: 10px; z-index: 100;
+  padding-bottom: max(10px, env(safe-area-inset-bottom)); box-shadow: 0 -2px 12px rgba(0,0,0,.04);
+}
+.contact-bar .info { flex: 1; font-size: 11px; color: var(--text-light); line-height: 1.5; min-width: 0; }
+.contact-bar .info strong { color: var(--text); font-size: 13px; display: block; }
+.contact-bar .btn {
+  flex-shrink: 0; padding: 10px 20px; border-radius: 24px; border: none;
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity .15s; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.contact-bar .btn:active { opacity: .75; }
+.btn-call { background: var(--accent-gold); color: #fff; }
+.btn-wx  { background: #07c160; color: #fff; }
+.footer { text-align: center; padding: 8px 16px 24px; font-size: 12px; color: var(--text-light); letter-spacing: 1px; }
+.empty {
+  grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-light); font-size: 14px;
+}
+.toast {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  background: rgba(0,0,0,.8); color: #fff; padding: 10px 24px; border-radius: 20px;
+  font-size: 14px; z-index: 2000; pointer-events: none; animation: toastIn .3s ease;
+}
+@keyframes toastIn {
+  from { opacity:0; transform:translate(-50%,-50%) scale(.9); }
+  to   { opacity:1; transform:translate(-50%,-50%) scale(1); }
+}
+
+/* ─── Admin Panel ─── */
+.admin-overlay {
+  position: fixed; inset: 0; background: #fff; z-index: 3000;
+  display: flex; flex-direction: column;
+}
+.admin-header {
+  background: #2c2416; color: #fff; padding: 16px;
+  padding-top: max(16px, env(safe-area-inset-top));
+  display: flex; align-items: center; justify-content: space-between;
+}
+.admin-header h2 { font-size: 17px; font-weight: 500; }
+.admin-header button {
+  background: rgba(255,255,255,.15); border: none; color: #fff;
+  padding: 6px 14px; border-radius: 16px; font-size: 13px; cursor: pointer;
+}
+.admin-tabs { display: flex; border-bottom: 1px solid var(--border); }
+.admin-tabs span {
+  flex: 1; text-align: center; padding: 12px; font-size: 14px;
+  cursor: pointer; color: var(--text-light); border-bottom: 2px solid transparent;
+}
+.admin-tabs span.on { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+.admin-body { flex: 1; overflow-y: auto; padding: 16px; }
+.admin-body h3 { font-size: 15px; margin-bottom: 12px; color: var(--text); }
+.admin-list { margin-bottom: 20px; }
+.admin-item {
+  background: #f9f6f0; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between; font-size: 13px;
+}
+.admin-item .ai-left { flex:1; min-width:0; }
+.admin-item .ai-left strong { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.admin-item .ai-left span { color: var(--text-light); font-size:11px; }
+.admin-item button {
+  flex-shrink:0; margin-left:8px; padding:5px 12px; border-radius:12px; border:none;
+  font-size:12px; cursor:pointer; background:#e8e0d5; color:var(--text);
+}
+.admin-item button.danger { background: #fde8e8; color: #b84636; }
+
+.admin-form { background: #f9f6f0; border-radius: 10px; padding: 14px; margin-bottom: 16px; }
+.admin-form label { display:block; font-size:12px; color:var(--text-light); margin-bottom:4px; margin-top:10px; }
+.admin-form label:first-child { margin-top:0; }
+.admin-form input, .admin-form select, .admin-form textarea {
+  width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px;
+  font-size:13px; font-family:inherit; background:#fff;
+}
+.admin-form textarea { resize:vertical; min-height:60px; }
+.admin-form .btn-row { margin-top:12px; display:flex; gap:8px; }
+.admin-form .btn-row button {
+  flex:1; padding:10px; border-radius:20px; border:none; font-size:14px; cursor:pointer;
+}
+.admin-form .btn-save { background: var(--accent); color:#fff; }
+.admin-form .btn-reset { background: #e8e0d5; color: var(--text); }
+
+@media (min-width: 640px) {
+  .grid { grid-template-columns: repeat(3, 1fr); max-width: 800px; margin: 0 auto; }
+  .tabs-wrap { max-width: 800px; margin: 0 auto; }
+  .video-section { max-width: 800px; margin-left: auto; margin-right: auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="header" id="adminTrigger">
+  <h1>南环工艺有限公司</h1>
+  <div class="sub">匠心制作 · 禅意流水摆件</div>
+  <div class="admin-hint" id="adminHint"></div>
+</div>
+
+<div class="tabs-wrap" id="tabs"></div>
+<div class="grid" id="grid"></div>
+<div id="videoSection"></div>
+<div class="footer">南环工艺有限公司 · 福建泉州</div>
+
+<div class="contact-bar" id="contactBar"></div>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox" style="display:none" ontouchstart="touchS(event)" ontouchend="touchE(event)">
+  <button class="close" onclick="closeLB()">✕</button>
+  <button class="nav-btn nav-prev" onclick="navLB(-1)">‹</button>
+  <img id="lbImg" src="" alt="">
+  <div class="counter" id="lbCounter"></div>
+  <button class="nav-btn nav-next" onclick="navLB(1)">›</button>
+</div>
+
+<!-- Admin Panel -->
+<div id="adminOverlay" class="admin-overlay" style="display:none">
+  <div class="admin-header">
+    <h2>📋 管理后台</h2>
+    <div>
+      <button onclick="resetAll()" style="margin-right:8px">🔄 恢复默认</button>
+      <button onclick="closeAdmin()">✕ 关闭</button>
+    </div>
+  </div>
+  <div class="admin-tabs">
+    <span id="tabCat" class="on" onclick="swAdminTab('cat')">分类管理</span>
+    <span id="tabProd" onclick="swAdminTab('prod')">产品管理</span>
+    <span id="tabContact" onclick="swAdminTab('contact')">联系信息</span>
+  </div>
+  <div class="admin-body" id="adminBody"></div>
+</div>
+
+<script src="products.js"></script>
+<script>
+"use strict";
+
+// ========================================
+// Data layer: localStorage overrides defaults
+// ========================================
+function load(key, def) {
+  try { var v = localStorage.getItem("sc_"+key); return v ? JSON.parse(v) : def; }
+  catch(e) { return def; }
+}
+function save(key, val) { localStorage.setItem("sc_"+key, JSON.stringify(val)); }
+
+function getCategories() { return load("cats", CATEGORIES); }
+function getProducts()  { return load("prods", PRODUCTS); }
+function getContact()   { return load("contact", CONTACT); }
+
+// ========================================
+// Render
+// ========================================
+var cat = getCategories()[0] ? getCategories()[0].id : "";
+var cur = null, idx = 0, tsX = 0;
+
+function rTabs() {
+  var cats = getCategories();
+  document.getElementById("tabs").innerHTML = cats.map(function(c){
+    return '<span class="tab'+(c.id===cat?' active':'')+'" onclick="swCat(\''+c.id+'\')">'+c.name+'</span>';
+  }).join("");
+}
+
+function rGrid() {
+  var g = document.getElementById("grid");
+  var prods = getProducts();
+  var list = prods.filter(function(p){return p.category===cat;});
+  if (!list.length) {
+    g.innerHTML = '<div class="empty">暂无产品，敬请期待</div>';
+    document.getElementById("videoSection").innerHTML = "";
+    return;
+  }
+  g.innerHTML = list.map(function(p){
+    return '<div class="card" onclick="openLB(\''+p.id+'\',0)">'
+      +'<img class="card-img" src="'+p.cover+'" alt="'+p.name+'" loading="lazy" onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect fill=%22%23f5f1ea%22 width=%22200%22 height=%22200%22/><text fill=%22%23ccc%22 x=%22100%22 y=%22110%22 text-anchor=%22middle%22 font-size=%2213%22>暂无图片</text></svg>\'">'
+      +'<div class="card-body"><div class="name">'+p.name+'</div><div class="specs">'+p.specs.join(" · ")+(p.desc?" — "+p.desc:"")+'</div></div>'
+    +'</div>';
+  }).join("");
+}
+
+function rVideo() {
+  var s = document.getElementById("videoSection");
+  var prods = getProducts();
+  var vp = prods.filter(function(p){return p.category===cat && p.video;});
+  if (!vp.length) { s.innerHTML = ""; return; }
+  var p = vp[0];
+  s.innerHTML = '<div class="video-section"><div class="label">🎬 产品视频 — '+p.name+'</div>'
+    +(p.video
+      ? '<video src="'+p.video+'" controls preload="none" playsinline webkit-playsinline x5-video-player-type="h5" x5-video-player-fullscreen="true"></video>'
+      : '<div class="placeholder">📹 视频待上传<div class="tip">在管理后台填入视频链接</div></div>')
+    +'</div>';
+}
+
+function swCat(id) { cat=id; rTabs(); rGrid(); rVideo(); window.scrollTo({top:0,behavior:"smooth"}); }
+
+// Lightbox
+function openLB(pid, i) {
+  var prods = getProducts();
+  var p = prods.filter(function(x){return x.id===pid;})[0];
+  if (!p||!p.images.length) return;
+  cur=p; idx=i; showImg();
+  document.getElementById("lightbox").style.display="flex";
+  document.body.style.overflow="hidden";
+}
+function closeLB() { document.getElementById("lightbox").style.display="none"; document.body.style.overflow=""; }
+function navLB(d) {
+  if (!cur) return;
+  idx=(idx+d+cur.images.length)%cur.images.length;
+  showImg();
+}
+function showImg() {
+  document.getElementById("lbImg").src=cur.images[idx];
+  document.getElementById("lbCounter").textContent=(idx+1)+" / "+cur.images.length+"  —  "+cur.name;
+}
+function touchS(e) { tsX=e.touches[0].clientX; }
+function touchE(e) {
+  var dx=e.changedTouches[0].clientX-tsX;
+  if (Math.abs(dx)>50) navLB(dx>0?-1:1);
+}
+document.addEventListener("keydown",function(e){
+  if (document.getElementById("lightbox").style.display!=="flex") return;
+  if (e.key==="Escape") closeLB();
+  if (e.key==="ArrowLeft") navLB(-1);
+  if (e.key==="ArrowRight") navLB(1);
+});
+
+function rContact() {
+  var co = getContact();
+  document.getElementById("contactBar").innerHTML =
+    '<div class="info"><strong>'+co.factory+'</strong><span>'+co.address+'</span></div>'
+    +'<button class="btn btn-call" onclick="doCall()">📞 电话</button>'
+    +'<button class="btn btn-wx" onclick="doCopyWx()">💬 微信</button>';
+}
+function doCall() { window.location.href="tel:"+getContact().phone; }
+function doCopyWx() {
+  var t = getContact().wechat;
+  if (navigator.clipboard&&navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(t).then(function(){toast("微信号已复制："+t);});
+  } else { prompt("复制此微信号",t); }
+}
+function toast(msg) {
+  var el=document.createElement("div");
+  el.className="toast"; el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();},2000);
+}
+
+// ========================================
+// Admin entry: tap header 5 times
+// ========================================
+var tapCount = 0, tapTimer = null;
+document.getElementById("adminTrigger").addEventListener("click", function(){
+  tapCount++;
+  if (tapCount>=5) {
+    tapCount=0;
+    if (tapTimer) clearTimeout(tapTimer);
+    openAdmin();
+  } else {
+    if (tapTimer) clearTimeout(tapTimer);
+    tapTimer = setTimeout(function(){tapCount=0;}, 1500);
+  }
+  var hint = document.getElementById("adminHint");
+});
+
+function openAdmin() {
+  document.getElementById("adminOverlay").style.display="flex";
+  document.body.style.overflow="hidden";
+  swAdminTab("cat");
+}
+function closeAdmin() {
+  document.getElementById("adminOverlay").style.display="none";
+  document.body.style.overflow="";
+  cat = getCategories()[0] ? getCategories()[0].id : "";
+  rTabs(); rGrid(); rVideo(); rContact();
+}
+
+// ========================================
+// Admin tabs
+// ========================================
+var adminTab = "cat";
+function swAdminTab(t) {
+  adminTab = t;
+  document.getElementById("tabCat").className = t==="cat" ? "on" : "";
+  document.getElementById("tabProd").className = t==="prod" ? "on" : "";
+  document.getElementById("tabContact").className = t==="contact" ? "on" : "";
+  if (t==="cat") rAdminCats();
+  else if (t==="prod") rAdminProds();
+  else rAdminContact();
+}
+
+// ── Category Admin ──
+function rAdminCats() {
+  var cats = getCategories();
+  var h = '<h3>现有分类</h3><div class="admin-list">';
+  cats.forEach(function(c,i){
+    h += '<div class="admin-item"><div class="ai-left"><strong>'+c.name+'</strong><span>ID: '+c.id+'</span></div>'
+      +'<button onclick="editCat('+i+')">编辑</button>'
+      +'<button class="danger" onclick="delCat('+i+')">删除</button></div>';
+  });
+  h += '</div>';
+
+  var editing = load("editCat", null);
+  var isEdit = editing !== null;
+  h += '<h3>'+(isEdit?'编辑分类':'添加新分类')+'</h3>';
+  h += '<div class="admin-form">'
+    +'<label>分类名称</label><input id="fCatName" value="'+(isEdit?editing.name:'')+'">'
+    +'<label>分类 ID（英文，不可重复）</label><input id="fCatId" value="'+(isEdit?editing.id:'')+'" placeholder="如：liushui"'+(isEdit?' disabled':'')+'>'
+    +'<div class="btn-row">'
+      +(isEdit?'<button class="btn-reset" onclick="cancelEditCat()">取消</button>':'')
+      +'<button class="btn-save" onclick="saveCat(\''+(isEdit?editing.id:'')+'\')">'+(isEdit?'保存修改':'添加分类')+'</button>'
+    +'</div>'
+    +'</div>';
+  document.getElementById("adminBody").innerHTML = h;
+}
+function saveCat(oldId) {
+  var name = document.getElementById("fCatName").value.trim();
+  var id = oldId || document.getElementById("fCatId").value.trim().replace(/\s+/g,'_');
+  if (!name||!id) { toast("请填写分类名称和ID"); return; }
+  var cats = getCategories();
+  if (oldId) {
+    for (var i=0;i<cats.length;i++) {
+      if (cats[i].id===oldId) { cats[i].name=name; break; }
+    }
+    var prods = getProducts();
+    prods.forEach(function(p){ if(p.category===oldId) p.category=id; });
+    if (oldId!==id) {
+      for (var j=0;j<cats.length;j++) {
+        if (cats[j].id===oldId) { cats[j].id=id; break; }
+      }
+    }
+    save("prods", prods);
+    save("editCat", null);
+  } else {
+    if (cats.some(function(c){return c.id===id;})) { toast("该ID已存在"); return; }
+    cats.push({id:id, name:name});
+  }
+  save("cats", cats);
+  rAdminCats();
+}
+function editCat(i) {
+  save("editCat", getCategories()[i]);
+  rAdminCats();
+}
+function cancelEditCat() { save("editCat", null); rAdminCats(); }
+function delCat(i) {
+  var cats = getCategories();
+  var id = cats[i].id;
+  if (!confirm("确定删除分类「"+cats[i].name+"」？该分类下的产品不会被删除。")) return;
+  cats.splice(i,1);
+  save("cats", cats);
+  rAdminCats();
+}
+
+// ── Product Admin ──
+function rAdminProds() {
+  var prods = getProducts(), cats = getCategories();
+  var catNames = {};
+  cats.forEach(function(c){catNames[c.id]=c.name;});
+
+  var h = '<h3>现有产品（'+prods.length+'）</h3><div class="admin-list">';
+  prods.forEach(function(p,i){
+    h += '<div class="admin-item"><div class="ai-left"><strong>'+p.name+'</strong><span>'+p.id+' · '+(catNames[p.category]||p.category)+' · '+p.images.length+'张图</span></div>'
+      +'<button onclick="editProd('+i+')">编辑</button>'
+      +'<button class="danger" onclick="delProd('+i+')">删除</button></div>';
+  });
+  h += '</div>';
+
+  var editing = load("editProd", null);
+  var isEdit = editing !== null;
+  var p = isEdit ? editing : {id:"",category:cats[0]?cats[0].id:"",name:"",cover:"",images:"",video:"",specs:"",desc:""};
+  h += '<h3>'+(isEdit?'编辑产品':'添加新产品')+'</h3>';
+  h += '<div class="admin-form">'
+    +'<label>产品名称 *</label><input id="fProdName" value="'+esc(p.name)+'">'
+    +'<label>货号/ID *</label><input id="fProdId" value="'+esc(p.id)+'" placeholder="如：99537"'+(isEdit?' disabled':'')+'>'
+    +'<label>所属分类</label><select id="fProdCat">'
+      +cats.map(function(c){return '<option value="'+c.id+'"'+(p.category===c.id?' selected':'')+'>'+c.name+'</option>';}).join("")
+    +'</select>'
+    +'<label>封面图路径</label><input id="fProdCover" value="'+esc(p.cover)+'" placeholder="images/99535/image-1.png">'
+    +'<label>所有图片路径（一行一个）</label><textarea id="fProdImgs" placeholder="images/99535/image-1.png&#10;images/99535/image-2.png">'+(isEdit?p.images.join("\n"):"")+'</textarea>'
+    +'<label>视频链接（可选）</label><input id="fProdVideo" value="'+esc(p.video||"")+'" placeholder="https://your-cos.com/video.mp4">'
+    +'<label>规格标签（一行一个）</label><textarea id="fProdSpecs" placeholder="流水景观&#10;禅意风格">'+(isEdit?p.specs.join("\n"):"")+'</textarea>'
+    +'<label>产品描述</label><input id="fProdDesc" value="'+esc(p.desc||"")+'" placeholder="简短描述">'
+    +'<div class="btn-row">'
+      +(isEdit?'<button class="btn-reset" onclick="cancelEditProd()">取消</button>':'')
+      +'<button class="btn-save" onclick="saveProd('+(isEdit?'\''+editing.id+'\'':'')+')">'+(isEdit?'保存修改':'添加产品')+'</button>'
+    +'</div></div>';
+  document.getElementById("adminBody").innerHTML = h;
+}
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function readLines(id) {
+  return document.getElementById(id).value.split("\n").map(function(s){return s.trim();}).filter(function(s){return s;});
+}
+function saveProd(oldId) {
+  var name = document.getElementById("fProdName").value.trim();
+  var id = oldId || document.getElementById("fProdId").value.trim();
+  if (!name||!id) { toast("请填写产品名称和ID"); return; }
+  var prods = getProducts();
+  var obj = {
+    id: id,
+    category: document.getElementById("fProdCat").value,
+    name: name,
+    cover: document.getElementById("fProdCover").value.trim(),
+    images: readLines("fProdImgs"),
+    video: document.getElementById("fProdVideo").value.trim(),
+    specs: readLines("fProdSpecs"),
+    desc: document.getElementById("fProdDesc").value.trim()
+  };
+  if (!obj.cover && obj.images.length) obj.cover = obj.images[0];
+  if (!obj.specs.length) obj.specs = [""];
+  if (oldId) {
+    for (var i=0;i<prods.length;i++) {
+      if (prods[i].id===oldId) { prods[i]=obj; break; }
+    }
+    if (oldId!==id) {
+      for (var j=0;j<prods.length;j++) {
+        if (prods[j].id===oldId) { prods[j].id=id; break; }
+      }
+    }
+    save("editProd", null);
+  } else {
+    if (prods.some(function(p){return p.id===id;})) { toast("该ID已存在"); return; }
+    prods.push(obj);
+  }
+  save("prods", prods);
+  rAdminProds();
+}
+function editProd(i) { save("editProd", getProducts()[i]); rAdminProds(); }
+function cancelEditProd() { save("editProd", null); rAdminProds(); }
+function delProd(i) {
+  var prods = getProducts();
+  if (!confirm("确定删除产品「"+prods[i].name+"」？")) return;
+  prods.splice(i,1);
+  save("prods", prods);
+  rAdminProds();
+}
+
+// ── Contact Admin ──
+function rAdminContact() {
+  var co = getContact();
+  var h = '<h3>联系信息</h3><div class="admin-form">'
+    +'<label>工厂名称</label><input id="fCoFactory" value="'+esc(co.factory)+'">'
+    +'<label>联系电话</label><input id="fCoPhone" value="'+esc(co.phone)+'">'
+    +'<label>微信号</label><input id="fCoWechat" value="'+esc(co.wechat)+'">'
+    +'<label>工厂地址</label><input id="fCoAddr" value="'+esc(co.address)+'">'
+    +'<div class="btn-row"><button class="btn-save" onclick="saveContact()">保存联系信息</button></div>'
+    +'</div>';
+  document.getElementById("adminBody").innerHTML = h;
+}
+function saveContact() {
+  save("contact", {
+    factory: document.getElementById("fCoFactory").value.trim(),
+    phone: document.getElementById("fCoPhone").value.trim(),
+    wechat: document.getElementById("fCoWechat").value.trim(),
+    address: document.getElementById("fCoAddr").value.trim()
+  });
+  rContact();
+  toast("联系信息已保存");
+}
+
+function resetAll() {
+  if (!confirm("确定恢复为默认数据？所有自定义分类、产品、联系信息将被清除。")) return;
+  localStorage.removeItem("sc_cats");
+  localStorage.removeItem("sc_prods");
+  localStorage.removeItem("sc_contact");
+  localStorage.removeItem("sc_editCat");
+  localStorage.removeItem("sc_editProd");
+  closeAdmin();
+  cat = CATEGORIES[0].id;
+  rTabs(); rGrid(); rVideo(); rContact();
+  toast("已恢复默认数据");
+}
+
+// ========================================
+// Init
+// ========================================
+rTabs(); rGrid(); rVideo(); rContact();
+</script>
+</body>
+</html>
