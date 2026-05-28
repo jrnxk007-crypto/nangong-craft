@@ -77,6 +77,7 @@ body { font-family: -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft Ya
   </div>
 </div>
 
+<script src="products.js"></script>
 <script>
 var TOKEN = localStorage.getItem("gh_token") || "";
 var REPO = "jrnxk007-crypto";
@@ -126,20 +127,18 @@ async function saveFile(path, content, msg) {
 }
 
 // ── Data ──
+var _data = null;
 async function loadData() {
   try {
-    // Read from same origin (no API needed, no VPN)
+    // Read from globals set by products.js script tag
+    var cats = typeof CATEGORIES !== "undefined" ? CATEGORIES : [];
+    var prods = typeof PRODUCTS !== "undefined" ? PRODUCTS : [];
+    var contact = typeof CONTACT !== "undefined" ? CONTACT : {factory:"",phone:"",wechat:"",address:""};
+    // Fetch raw source for reconstruction when saving
     var resp = await fetch("products.js?v="+Date.now());
-    if (!resp.ok) throw new Error("加载products.js失败: "+resp.status);
-    var raw = await resp.text();
-    var cats = [], prods = [], contact = {};
-    var cm = raw.match(/const CATEGORIES = (\[[\s\S]*?\]);/);
-    if (cm) cats = eval(cm[1]);
-    var pm = raw.match(/const PRODUCTS = (\[[\s\S]*?\]);/);
-    if (pm) prods = eval(pm[1]);
-    var ccm = raw.match(/const CONTACT = (\{[\s\S]*?\});/);
-    if (ccm) contact = eval(ccm[1]);
-    return { cats:cats, prods:prods, contact:contact, raw:raw };
+    var raw = resp.ok ? await resp.text() : "";
+    _data = { cats:cats, prods:prods, contact:contact, raw:raw };
+    return _data;
   } catch(e) { toast("加载失败："+e.message); return null; }
 }
 
